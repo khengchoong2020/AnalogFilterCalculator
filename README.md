@@ -41,9 +41,4 @@ Pull requests are welcome! Please open an issue first to discuss major changes.
 - `main.c` (for CLI and menu)
 - `README.md`
 
-This modular approach will make it easy to add new filter types.
 
----
-
-**Ready to upload!**  
-If you want, I can help you scaffold the Chebyshev, Bessel, and Elliptical filter files or menu structure.
