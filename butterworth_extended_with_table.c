@@ -1,24 +1,23 @@
 /*
- * Extended Butterworth Filter Design Calculator with Table Output
+ * Butterworth Filter Design Calculator with Table Output
  * Supports Low-pass, High-pass, Band-pass, and Band-reject filters
  * with PI and Tee network topologies
  * Calculates component values based on user input
  * calculate order of the filter with attenuation at the offset frequency
  * and the center frequency for band-pass and band-reject filters
- * Author: kheng choong (extended by GitHub Copilot)
+ * Author: kheng choong 
  * Date: 2025-05-21
  * Version: 2.1
  */
 
 #include <stdio.h>
 #include <stdint.h>
-#include <string.h>
 #include <math.h>
 
 #define PI 3.141592653589793 
 
 int main() {
-    int n, Top, filterType;
+    int n,n_cal, Top, filterType;
     uint32_t Fc = 0, BW = 0;// offsetFreq = 0;
     double R = 50.0; // System impedance
     double attenuation_dB = 0,CutoffFreq =0, offsetFreq = 0;
@@ -41,16 +40,16 @@ int main() {
 
         if (filterType == 1) { // Low-pass
             if (attenuation_dB > 0 && offsetFreq > CutoffFreq) {
-                n = (int)ceil(log10(pow(10, attenuation_dB / 10) - 1) / (2 * log10(offsetFreq / CutoffFreq)));
-                printf("Calculated filter order: %d\n", n);
+                n_cal = (int)ceil(log10(pow(10, attenuation_dB / 10) - 1) / (2 * log10(offsetFreq / CutoffFreq)));
+                printf("Calculated filter order: %d\n", n_cal);
             } else {
                 printf("Invalid input. For LPF, attenuation must be > 0 and offset frequency must be > cutoff frequency.\n");
                 return 1;
             }
         } else if (filterType == 2) { // High-pass
             if (attenuation_dB > 0 && offsetFreq < CutoffFreq) {
-                n = (int)ceil(log10(pow(10, attenuation_dB / 10) - 1) / (2 * log10(CutoffFreq / offsetFreq)));
-                printf("Calculated filter order: %d\n", n);
+                n_cal = (int)ceil(log10(pow(10, attenuation_dB / 10) - 1) / (2 * log10(CutoffFreq / offsetFreq)));
+                printf("Calculated filter order: %d\n", n_cal);
             } else {
                 printf("Invalid input. For HPF, attenuation must be > 0 and offset frequency must be < cutoff frequency.\n");
                 return 1;
@@ -58,6 +57,11 @@ int main() {
         }
         printf("Enter filter order: ");
         scanf("%d", &n);
+
+        if(n_cal >n n){
+            printf("Warning !! Invalid input. Filter order must be greater than calculated order.\n");
+            return 1;
+        }
     }
     
 
@@ -67,7 +71,7 @@ int main() {
         printf("Enter bandwidth in Hz: ");
         scanf("%d", &BW);
         printf("Enter filter order: ");
-        scanf("%d", &n);
+        scanf("%d", &n_cal);
    // } else {
    //     printf("Enter cutoff frequency in Hz (limit to 4.2GHz): ");
    //     scanf("%d", &CutoffFreq);
@@ -95,8 +99,8 @@ int main() {
             printf("\nPI network selected (Low-pass)\n");
             for (int i = 1; i <= n; i++) {
                 double coe = 2 * sin((((2 * i) - 1) * PI) / (2 * n));
-                double cap = (coe) / (2 * PI * CutoffFreq * 50) * 1e9; // nF
-                double ind = (50 * coe) / (2 * PI * CutoffFreq) * 1e6; // uH
+                double cap = (coe) / (2 * PI * CutoffFreq * R) * 1e9; // nF
+                double ind = (R * coe) / (2 * PI * CutoffFreq) * 1e6; // uH
                 if (i % 2 == 1)
                     printf("|   C%-5d| %11.4lf | %16.4f | %15s |\n", i, coe, cap, "-");
                 else
@@ -106,8 +110,8 @@ int main() {
             printf("\nTee network selected (Low-pass)\n");
             for (int i = 1; i <= n; i++) {
                 double coe = 2 * sin((((2 * i) - 1) * PI) / (2 * n));
-                double cap = (coe) / (2 * PI * CutoffFreq * 50) * 1e9; // nF
-                double ind = (50 * coe) / (2 * PI * CutoffFreq) * 1e6; // uH
+                double cap = (coe) / (2 * PI * CutoffFreq * R) * 1e9; // nF
+                double ind = (R * coe) / (2 * PI * CutoffFreq) * 1e6; // uH
                 if (i % 2 == 1)
                     printf("|   L%-5d| %11.4lf | %16s | %15.4f |\n", i, coe, "-", ind);
                 else
@@ -121,8 +125,8 @@ int main() {
             printf("\nPI network selected (High-pass)\n");
             for (int i = 1; i <= n; i++) {
                 double coe = 2 * sin((((2 * i) - 1) * PI) / (2 * n));
-                double cap = (1.0 / (50 * 2 * PI * CutoffFreq * coe)) * 1e9; // nF
-                double ind = (50 / (2 * PI * CutoffFreq * coe)) * 1e6; // uH
+                double cap = (1.0 / (R * 2 * PI * CutoffFreq * coe)) * 1e9; // nF
+                double ind = (R / (2 * PI * CutoffFreq * coe)) * 1e6; // uH
                 if (i % 2 == 1)
                     printf("|   L%-5d| %11.4lf | %16s | %15.4f |\n", i, coe, "-", ind);
                 else
@@ -132,8 +136,8 @@ int main() {
             printf("\nTee network selected (High-pass)\n");
             for (int i = 1; i <= n; i++) {
                 double coe = 2 * sin((((2 * i) - 1) * PI) / (2 * n));
-                double cap = (1.0 / (50 * 2 * PI * CutoffFreq * coe)) * 1e9; // nF
-                double ind = (50 / (2 * PI * CutoffFreq * coe)) * 1e6; // uH
+                double cap = (1.0 / (R * 2 * PI * CutoffFreq * coe)) * 1e9; // nF
+                double ind = (R / (2 * PI * CutoffFreq * coe)) * 1e6; // uH
                 if (i % 2 == 1)
                     printf("|   C%-5d| %11.4lf | %16.4f | %15s |\n", i, coe, cap, "-");
                 else
@@ -145,15 +149,15 @@ int main() {
     } else if (filterType == 3) { // Band-pass
         for (int i = 1; i <= n; i++) {
             double coe = 2 * sin((((2 * i) - 1) * PI) / (2 * n));
-            double C = (coe * BW) / (2 * PI * Fc * Fc * 50) * 1e9; // nF
-            double L = (50 * coe) / (2 * PI * BW) * 1e6; // uH
+            double C = (coe * BW) / (2 * PI * Fc * Fc * R) * 1e9; // nF
+            double L = (R * coe) / (2 * PI * BW) * 1e6; // uH
             printf("|   %2d     | %11.4lf | %16.4f | %15.4f |\n", i, coe, C, L);
         }
     } else if (filterType == 4) { // Band-reject
         for (int i = 1; i <= n; i++) {
             double coe = 2 * sin((((2 * i) - 1) * PI) / (2 * n));
-            double C = (1.0 / (50 * 2 * PI * BW * coe)) * 1e9; // nF
-            double L = (50 / (2 * PI * BW * coe)) * 1e6; // uH
+            double C = (1.0 / (R * 2 * PI * BW * coe)) * 1e9; // nF
+            double L = (R / (2 * PI * BW * coe)) * 1e6; // uH
             printf("|   %2d     | %11.4lf | %16.4f | %15.4f |\n", i, coe, C, L);
         }
     } else {
