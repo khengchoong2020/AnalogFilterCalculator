@@ -1,7 +1,7 @@
 Analog filter calculator
 # Analog Filter Calculator
 
-A C program (and probably python as well)for designing analog Butterworth filters (Low-pass, High-pass, Band-pass, Band-reject) with equal source and load termination.  
+A C program (and probably python as well)for designing analog Butterworth bessel and chebyshev filters (Low-pass, High-pass, Band-pass, Band-reject) with equal source and load termination.  
 **Author:** kheng choong
 
 ## Features
