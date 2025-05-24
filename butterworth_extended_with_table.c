@@ -58,7 +58,7 @@ int main() {
         printf("Enter filter order: ");
         scanf("%d", &n);
 
-        if(n_cal >n n){
+        if(n_cal >n ){
             printf("Warning !! Invalid input. Filter order must be greater than calculated order.\n");
             return 1;
         }
